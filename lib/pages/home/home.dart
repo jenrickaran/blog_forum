@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
+import 'package:flutter_app/widgets/create_post_textfield.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,7 @@ class Home extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            CreatePostTextfield(),
             Text(
               'Welcome to the Home Page!',
               style: TextStyle(fontSize: 24, fontFamily: 'Google-Sans'),
