@@ -3,6 +3,7 @@ import 'package:flutter_app/services/post_service.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});

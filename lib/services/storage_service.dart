@@ -10,7 +10,7 @@ class StorageService {
     final fileName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
 
     await supabase.storage
-        .from('images')
+        .from('post-images')
         .uploadBinary(
           fileName,
           bytes,
@@ -20,6 +20,6 @@ class StorageService {
           ),
         );
 
-    return supabase.storage.from('images').getPublicUrl(fileName);
+    return supabase.storage.from('post-images').getPublicUrl(fileName);
   }
 }

@@ -1,4 +1,4 @@
-import 'package:cross_file/src/types/interface.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_app/services/storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
