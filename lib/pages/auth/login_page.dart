@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.read<AuthProvider>();
     return Scaffold(
       body: Center(
         child: SizedBox(
@@ -69,7 +70,16 @@ class _LoginPageState extends State<LoginPage> {
                 spacing: 20,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final sucess = await authProvider.login(
+                        _emailController.text.trim(),
+                        _passwordController.text,
+                      );
+
+                      if (sucess && context.mounted) {
+                        context.go('/home');
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5F00),
                       foregroundColor: Colors.white,
@@ -81,16 +91,18 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final authProvider = context.read<AuthProvider>();
-                      
-                      final sucess = await authProvider.login(
+                      final success = await authProvider.signUp(
                         _emailController.text.trim(),
-                        _passwordController.text.trim(),
+                        _passwordController.text,
                       );
 
-                      if (sucess && context.mounted) {
-                        context.go('/home');
-                      } 
+                      if (success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Sign Up Successful! Please log in.'),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF8C00),
