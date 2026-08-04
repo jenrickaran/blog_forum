@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/models/post.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
 import 'package:flutter_app/providers/post_provider.dart';
 import 'package:flutter_app/widgets/create_post_textfield.dart';

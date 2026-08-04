@@ -10,7 +10,6 @@ class PostService {
     List<XFile> images = const [],
   }) async {
     final user = Supabase.instance.client.auth.currentUser;
-
     final response = await Supabase.instance.client
         .from('post')
         .insert({'user_id': user!.id, 'title': title, 'context': content})
