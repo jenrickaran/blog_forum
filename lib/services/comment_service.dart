@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter_app/models/comment.dart';
 import 'package:flutter_app/services/storage_service.dart';
 import 'package:image_picker/image_picker.dart';
