@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/post_service.dart';
+import 'package:flutter_app/providers/post_provider.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -15,7 +14,7 @@ class CreatePostPage extends StatefulWidget {
 class _CreatePostPageState extends State<CreatePostPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  XFile? _selectedImage;
+  final List<XFile> _selectedImage = [];
   String? imageUrl;
 
   @override
@@ -48,18 +47,18 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-            if (_selectedImage != null)
+            if (_selectedImage.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: kIsWeb
                     ? Image.network(
-                        _selectedImage!.path,
+                        _selectedImage.first.path,
                         height: 220,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       )
                     : Image.file(
-                        File(_selectedImage!.path),
+                        File(_selectedImage.first.path),
                         height: 220,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -71,12 +70,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   icon: const Icon(Icons.image),
                   label: const Text("Add Image"),
                   onPressed: () async {
-                    final XFile? image = await ImagePicker().pickImage(
-                      source: ImageSource.gallery,
-                    );
-                    if (image != null) {
+                    final List<XFile> image = await ImagePicker()
+                        .pickMultiImage();
+                    if (image.isNotEmpty) {
                       setState(() {
-                        _selectedImage = image;
+                        _selectedImage.addAll(image);
                       });
                     }
                   },
@@ -92,24 +90,22 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final PostService postService = PostService();
-                    try {
-                      await postService.createPost(
-                        title: _titleController.text,
-                        content: _contentController.text,
-                        images: _selectedImage != null ? [_selectedImage!] : [],
-                      );
-
-                      if (mounted) {
-                        Navigator.pop(context);
-                      }
-                    } catch (e, stackTrace) {
-                      debugPrint("ERROR: $e \nSTACKTRACE: $stackTrace");
-                      debugPrintStack(stackTrace: stackTrace);
-
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(e.toString())));
+                    final PostProvider postProvider = PostProvider();
+                    await postProvider.createPost(
+                      title: _titleController.text,
+                      content: _contentController.text,
+                      images: _selectedImage,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          postProvider.errorMessage ??
+                              'Post created successfully!',
+                        ),
+                      ),
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
                     }
                   },
                   child: const Text("Post"),
