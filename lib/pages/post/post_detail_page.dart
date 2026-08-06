@@ -97,7 +97,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       ),
                     const SizedBox(height: 20),
                     CommentList(),
-
                     /*Expanded(child: CommentList()),*/
                   ],
                 ),

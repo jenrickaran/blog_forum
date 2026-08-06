@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/comment.dart';
+import 'package:flutter_app/models/comment_image.dart';
 import 'package:flutter_app/services/comment_service.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -66,15 +67,22 @@ class CommentProvider extends ChangeNotifier {
     required int commentId,
     required int postId,
     required String content,
+    required List<CommentImage> existingImages,
+    List<XFile> newImages = const [],
   }) async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
+      debugPrint("Provider update called");
+      debugPrint("Images passed: ${newImages.length}");
+
       await _commentService.updateComment(
         commentId: commentId,
         content: content,
+        existingImages: existingImages,
+        newImages: newImages,
       );
 
       await loadComments(postId);
