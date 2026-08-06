@@ -23,4 +23,24 @@ class StorageService {
 
     return supabase.storage.from('post-images').getPublicUrl(fileName);
   }
+
+  Future<String> uploadCommentImage(List<XFile> images) async {
+    final bytes = await images.first.readAsBytes();
+    final extension = images.first.name.split('.').last;
+
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+    await supabase.storage
+        .from('comment-images')
+        .uploadBinary(
+          fileName,
+          bytes,
+          fileOptions: FileOptions(
+            contentType: images.first.mimeType ?? 'image/jpeg',
+            upsert: true,
+          ),
+        );
+
+    return supabase.storage.from('comment-images').getPublicUrl(fileName);
+  }
 }

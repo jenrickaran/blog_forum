@@ -11,9 +11,12 @@ class CommentService {
     try {
       final response = await supabase
           .from('comments')
-          .select()
+          .select('''
+            *,
+            comment_images(*)
+          ''')
           .eq('post_id', postId)
-          .order('created_at', ascending: true);
+          .order('created_at');
 
       final comments = response.map<Comment>((json) {
         return Comment.fromJson(json);
@@ -47,7 +50,7 @@ class CommentService {
     final commentId = response['id'];
 
     for (final image in images) {
-      final imageUrl = await _storageService.uploadImage([image]);
+      final imageUrl = await _storageService.uploadCommentImage([image]);
 
       await supabase.from('comment_images').insert({
         'comment_id': commentId,

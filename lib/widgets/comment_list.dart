@@ -4,34 +4,28 @@ import 'package:flutter_app/widgets/comment_card.dart';
 import 'package:provider/provider.dart';
 
 class CommentList extends StatelessWidget {
-  const CommentList({
-    super.key,
-  });
+  const CommentList({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<CommentProvider>(
       builder: (_, provider, _) {
         if (provider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (provider.comments.isEmpty) {
-          return const Center(
-            child: Text("No comments yet."),
-          );
+          return const Center(child: Text("No comments yet."));
         }
 
         return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: provider.comments.length,
           itemBuilder: (_, index) {
             final comment = provider.comments[index];
 
-            return CommentCard(
-              comment: comment,
-            );
+            return CommentCard(comment: comment);
           },
         );
       },
