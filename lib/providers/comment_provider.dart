@@ -9,10 +9,12 @@ class CommentProvider extends ChangeNotifier {
   List<Comment> _comments = [];
   bool _isLoading = false;
   String? _errorMessage;
+  String? _stackTrace;
 
   List<Comment> get comments => _comments;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get stackTrace => _stackTrace;
 
   /// Load all comments for a post
   Future<void> loadComments(int postId) async {
@@ -48,10 +50,10 @@ class CommentProvider extends ChangeNotifier {
       );
 
       await loadComments(postId);
-
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       _errorMessage = e.toString();
+      _stackTrace = stackTrace.toString();
       return false;
     } finally {
       _isLoading = false;

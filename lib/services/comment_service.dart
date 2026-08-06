@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_app/models/comment.dart';
 import 'package:flutter_app/services/storage_service.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,13 +9,23 @@ class CommentService {
   final StorageService _storageService = StorageService();
 
   Future<List<Comment>> getComments(int postId) async {
-    final response = await supabase
-        .from('comment')
-        .select()
-        .eq('post_id', postId)
-        .order('created_at', ascending: true);
+    try {
+      final response = await supabase
+          .from('comments')
+          .select()
+          .eq('post_id', postId)
+          .order('created_at', ascending: true);
 
-    return response.map<Comment>((json) => Comment.fromJson(json)).toList();
+      final comments = response.map<Comment>((json) {
+        return Comment.fromJson(json);
+      }).toList();
+
+      return comments;
+    } on PostgrestException catch (e) {
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> createComment({
@@ -29,7 +40,7 @@ class CommentService {
     }
 
     final response = await supabase
-        .from('comment')
+        .from('comments')
         .insert({'post_id': postId, 'user_id': user.id, 'content': content})
         .select()
         .single();
@@ -51,7 +62,7 @@ class CommentService {
     required String content,
   }) async {
     await supabase
-        .from('comment')
+        .from('comments')
         .update({
           'content': content,
           'updated_at': DateTime.now().toIso8601String(),
@@ -66,21 +77,16 @@ class CommentService {
         .select()
         .eq('comment_id', commentId);
 
-
     for (final image in images) {
       final imageUrl = image['image_url'] as String;
 
       final path = Uri.parse(imageUrl).pathSegments.last;
 
-      await supabase.storage
-          .from('comment-images')
-          .remove([path]);
+      await supabase.storage.from('comment-images').remove([path]);
     }
-
 
     await supabase.from('comment_images').delete().eq('comment_id', commentId);
 
-
-    await supabase.from('comment').delete().eq('id', commentId);
+    await supabase.from('comments').delete().eq('id', commentId);
   }
 }

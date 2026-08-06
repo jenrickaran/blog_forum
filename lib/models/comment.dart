@@ -3,10 +3,10 @@ import 'package:flutter_app/models/comment_image.dart';
 class Comment {
   final int id;
   final int postId;
-  final int userId;
+  final String userId;
   final String content;
   final DateTime createdAt;
-  final String updatedAt;
+  final String? updatedAt;
   final List<CommentImage> commentImages;
 
   Comment({
@@ -15,7 +15,7 @@ class Comment {
     required this.userId,
     required this.content,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     required this.commentImages,
   });
 
@@ -27,9 +27,14 @@ class Comment {
       content: json['content'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: json['updated_at'] ?? '',
-      commentImages: (json['comment_images'] as List<dynamic>)
-          .map((image) => CommentImage.fromJson(image))
-          .toList(),
+      commentImages: json['comment_images'] != null
+          ? (json['comment_images'] as List<dynamic>)
+                .map(
+                  (image) =>
+                      CommentImage.fromJson(image as Map<String, dynamic>),
+                )
+                .toList()
+          : [],
     );
   }
 }

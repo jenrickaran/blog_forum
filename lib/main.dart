@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/app.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
+import 'package:flutter_app/providers/comment_provider.dart';
 import 'package:flutter_app/providers/post_provider.dart';
 import 'package:flutter_app/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PostProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => CommentProvider()),
       ],
       child: const MyApp(),
     ),

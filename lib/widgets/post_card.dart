@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
+import 'package:flutter_app/pages/post/post_detail_page.dart';
 
 class PostCard extends StatelessWidget {
   final Post post;
@@ -46,7 +47,18 @@ class PostCard extends StatelessWidget {
             ),
 
           const SizedBox(height: 10),
-          
+          IconButton(
+            icon: const Icon(Icons.comment_bank_outlined),
+            onPressed: () {
+              PostDetailPage postDetailPage = PostDetailPage(post: post);
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return postDetailPage;
+                },
+              );
+            },
+          ),
         ],
       ),
     );
