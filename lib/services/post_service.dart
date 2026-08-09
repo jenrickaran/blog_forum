@@ -50,4 +50,73 @@ class PostService {
 
     return response.map<Post>((json) => Post.fromJson(json)).toList();
   }
+
+  Future<void> deletePost(int postId) async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    if (user == null) {
+      throw Exception('Login first to delete the post.');
+    }
+
+    // 1. Verify that the post belongs to the logged-in user.
+    final post = await supabase
+        .from('post')
+        .select('user_id')
+        .eq('id', postId)
+        .maybeSingle();
+
+    if (post == null) {
+      throw Exception('Post not found.');
+    }
+
+    if (post['user_id'] != user.id) {
+      throw Exception('You are not authorized to delete this post.');
+    }
+
+    // 2. Delete associated image records.
+    await supabase.from('post_images').delete().eq('post_id', postId);
+
+    // 3. Delete the post.
+    await supabase
+        .from('post')
+        .delete()
+        .eq('id', postId)
+        .eq('user_id', user.id);
+  }
+
+  Future<void> updatePost({
+    required int postId,
+    required String title,
+    required String content,
+  }) async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    if (user == null) {
+      throw Exception('Login first to update the post.');
+    }
+
+    // Check ownership
+    final post = await supabase
+        .from('post')
+        .select('user_id')
+        .eq('id', postId)
+        .maybeSingle();
+
+    if (post == null) {
+      throw Exception('Post not found.');
+    }
+
+    if (post['user_id'] != user.id) {
+      throw Exception('You are not authorized to update this post.');
+    }
+
+    // Update the post
+    await supabase
+        .from('post')
+        .update({'title': title, 'context': content})
+        .eq('id', postId)
+        .eq('user_id', user.id);
+  }
 }

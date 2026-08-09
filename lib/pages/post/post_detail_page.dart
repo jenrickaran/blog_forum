@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
+import 'package:flutter_app/models/post_image.dart';
 import 'package:flutter_app/providers/comment_provider.dart';
+import 'package:flutter_app/providers/post_provider.dart';
 import 'package:flutter_app/widgets/comment_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostDetailPage extends StatefulWidget {
   final Post post;
@@ -17,16 +20,37 @@ class _PostDetailPageState extends State<PostDetailPage> {
   final commentController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
   List<XFile> _selectedImages = [];
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
 
+  bool _isEditing = false;
+
+  late List<PostImage> _postImages;
+
+  @override
   @override
   void initState() {
     super.initState();
+
+    _titleController = TextEditingController(text: widget.post.title);
+
+    _contentController = TextEditingController(text: widget.post.content);
+
+    _postImages = List.from(widget.post.imageUrls);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final commentProvider = context.read<CommentProvider>();
 
       await commentProvider.loadComments(widget.post.id);
     });
+  }
+
+  @override
+  void dispose() {
+    commentController.dispose();
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImages() async {
@@ -37,8 +61,57 @@ class _PostDetailPageState extends State<PostDetailPage> {
     });
   }
 
+  Future<void> _updatePost() async {
+    final title = _titleController.text.trim();
+    final content = _contentController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Title cannot be empty.')));
+      return;
+    }
+
+    if (content.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Content cannot be empty.')));
+      return;
+    }
+
+    final postProvider = context.read<PostProvider>();
+
+    final success = await postProvider.updatePost(
+      postId: widget.post.id,
+      title: title,
+      content: content,
+    );
+
+    if (!context.mounted) return;
+
+    if (success) {
+      setState(() {
+        _isEditing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post updated successfully.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(postProvider.errorMessage ?? 'Failed to update post.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    final bool isOwner =
+        currentUser != null && currentUser.id == widget.post.userId;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -58,15 +131,106 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      widget.post.title,
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                    if (isOwner) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // EDIT / CANCEL
+                          IconButton(
+                            onPressed: () {
+                              if (_isEditing) {
+                                _titleController.text = widget.post.title;
+                                _contentController.text = widget.post.content;
+
+                                setState(() {
+                                  _isEditing = false;
+                                });
+                              } else {
+                                setState(() {
+                                  _isEditing = true;
+                                });
+                              }
+                            },
+                            icon: Icon(_isEditing ? Icons.close : Icons.edit),
+                          ),
+
+                          // SAVE
+                          if (_isEditing)
+                            IconButton(
+                              onPressed: _updatePost,
+                              icon: const Icon(Icons.save, color: Colors.green),
+                            ),
+
+                          // DELETE
+                          if (!_isEditing)
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                final postProvider = context
+                                    .read<PostProvider>();
+
+                                final success = await postProvider.deletePost(
+                                  widget.post.id,
+                                );
+
+                                if (!context.mounted) return;
+
+                                if (success) {
+                                  Navigator.of(context).pop();
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Post deleted successfully.',
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        postProvider.errorMessage ??
+                                            'You are not authorized to delete this post.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    _isEditing
+                        ? TextField(
+                            controller: _titleController,
+                            decoration: const InputDecoration(
+                              labelText: 'Title',
+                              border: OutlineInputBorder(),
+                            ),
+                          )
+                        : Text(
+                            widget.post.title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                     const SizedBox(height: 10),
-                    Text(
-                      widget.post.content,
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                    _isEditing
+                        ? TextField(
+                            controller: _contentController,
+                            maxLines: 6,
+                            decoration: const InputDecoration(
+                              labelText: 'Content',
+                              alignLabelWithHint: true,
+                              border: OutlineInputBorder(),
+                            ),
+                          )
+                        : Text(
+                            widget.post.content,
+                            style: const TextStyle(fontSize: 16),
+                          ),
                     if (widget.post.imageUrls.isNotEmpty)
                       SizedBox(
                         height: 300,

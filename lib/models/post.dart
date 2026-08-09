@@ -29,4 +29,22 @@ class Post {
           .toList(),
     );
   }
+
+  Post copyWith({
+    int? id,
+    String? title,
+    String? content,
+    DateTime? createdAt,
+    String? userId,
+    List<PostImage>? imageUrls,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      userId: userId ?? this.userId,
+      imageUrls: imageUrls ?? this.imageUrls,
+    );
+  }
 }

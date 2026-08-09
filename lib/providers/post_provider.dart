@@ -63,4 +63,57 @@ class PostProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> deletePost(int postId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _postService.deletePost(postId);
+
+      _posts.removeWhere((post) => post.id == postId);
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updatePost({
+    required int postId,
+    required String title,
+    required String content,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _postService.updatePost(
+        postId: postId,
+        title: title,
+        content: content,
+      );
+
+      // Update local post list
+      final index = _posts.indexWhere((post) => post.id == postId);
+
+      if (index != -1) {
+        _posts[index] = _posts[index].copyWith(title: title, content: content);
+      }
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

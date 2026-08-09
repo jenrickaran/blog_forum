@@ -25,8 +25,6 @@ class CommentService {
       }).toList();
 
       return comments;
-    } on PostgrestException catch (e) {
-      rethrow;
     } catch (e) {
       rethrow;
     }

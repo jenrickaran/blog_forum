@@ -143,7 +143,6 @@ class _CommentCardState extends State<CommentCard> {
                         });
                       },
                     ),
-
                   IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: widget.onDelete,
