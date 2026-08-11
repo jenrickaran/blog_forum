@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
+import 'package:flutter_app/widgets/textfield.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -37,33 +38,18 @@ class _LoginPageState extends State<LoginPage> {
               ),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
-                child: TextField(
+                child: CustomTextFields(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    hoverColor: Color(0xFFFF5F00),
-                    floatingLabelStyle: TextStyle(color: Color(0xFFFF5F00)),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFFF5F00)),
-                    ),
-                    labelText: 'Username or Email',
-                  ),
+                  labelText: "Email",
+                  obscureText: false,
                 ),
               ),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
-                child: TextField(
+                child: CustomTextFields(
                   controller: _passwordController,
+                  labelText: "Password",
                   obscureText: true,
-                  decoration: InputDecoration(
-                    hoverColor: Color(0xFFFF5F00),
-                    floatingLabelStyle: TextStyle(color: Color(0xFFFF5F00)),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFFF5F00)),
-                    ),
-                    labelText: 'Password',
-                  ),
                 ),
               ),
               TextField(
