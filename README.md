@@ -39,3 +39,16 @@ This project was developed as part of a technical assessment to demonstrate skil
 - Users cannot edit/delete another user's posts
 - Users can edit/delete their own comments
 - Users cannot modify another user's comments
+
+# Tech Stack
+Flutter - for frontend and ui development
+Dart - programming language used
+Supabase - backend services
+Supabase Auth	- User authentication
+Supabase PostgreSQL	- Database
+Supabase Storage - Image storage
+Provider - State management
+go_router	- Application routing
+image_picker - Image selection
+dotenv - Environment variable management
+Git / GitHub - Version control
