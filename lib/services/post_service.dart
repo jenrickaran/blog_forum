@@ -1,4 +1,5 @@
 import 'package:flutter_app/models/post.dart';
+import 'package:flutter_app/models/post_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_app/services/storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -89,6 +90,8 @@ class PostService {
     required int postId,
     required String title,
     required String content,
+    required List<PostImage> remainingImages,
+    required List<XFile> newImages,
   }) async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
@@ -112,11 +115,72 @@ class PostService {
       throw Exception('You are not authorized to update this post.');
     }
 
-    // Update the post
+    // --------------------------------
+    // 1. Update title and content
+    // --------------------------------
+
     await supabase
         .from('post')
         .update({'title': title, 'context': content})
         .eq('id', postId)
         .eq('user_id', user.id);
+
+    // --------------------------------
+    // 2. Get current images
+    // --------------------------------
+
+    final currentImages = await supabase
+        .from('post_images')
+        .select('id, image_url')
+        .eq('post_id', postId);
+
+    // --------------------------------
+    // 3. Determine which images were removed
+    // --------------------------------
+
+    final remainingUrls = remainingImages
+        .map((image) => image.imageUrl)
+        .toSet();
+
+    final removedImages = currentImages.where((image) {
+      return !remainingUrls.contains(image['image_url']);
+    }).toList();
+
+    // --------------------------------
+    // 4. Delete removed images
+    // --------------------------------
+
+    for (final image in removedImages) {
+      final imageUrl = image['image_url'] as String;
+
+      final path = imageUrl.split('/post-images/').last;
+
+      await supabase.storage.from('post-images').remove([path]);
+
+      await supabase.from('post_images').delete().eq('id', image['id']);
+    }
+
+    // --------------------------------
+    // 5. Upload newly added images
+    // --------------------------------
+
+    for (final image in newImages) {
+      final bytes = await image.readAsBytes();
+
+      final extension = image.name.split('.').last;
+
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+      await supabase.storage.from('post-images').uploadBinary(fileName, bytes);
+
+      final imageUrl = supabase.storage
+          .from('post-images')
+          .getPublicUrl(fileName);
+
+      await supabase.from('post_images').insert({
+        'post_id': postId,
+        'image_url': imageUrl,
+      });
+    }
   }
 }

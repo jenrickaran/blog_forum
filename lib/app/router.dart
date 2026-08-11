@@ -1,5 +1,6 @@
 import 'package:flutter_app/pages/auth/login_page.dart';
 import 'package:flutter_app/pages/home/home.dart';
+import 'package:flutter_app/pages/profile/profile.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(
@@ -7,5 +8,6 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(path: '/home', builder: (context, state) => const Home()),
+    GoRoute(path: '/profile', builder: (context, state) => const Profile()),
   ],
 );

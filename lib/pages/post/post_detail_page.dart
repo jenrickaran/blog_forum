@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
 import 'package:flutter_app/models/post_image.dart';
@@ -22,6 +24,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   List<XFile> _selectedImages = [];
   late TextEditingController _titleController;
   late TextEditingController _contentController;
+  List<XFile> _newImages = [];
 
   bool _isEditing = false;
 
@@ -85,6 +88,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       postId: widget.post.id,
       title: title,
       content: content,
+      remainingImages: _postImages,
+      newImages: _newImages,
     );
 
     if (!context.mounted) return;
@@ -104,6 +109,28 @@ class _PostDetailPageState extends State<PostDetailPage> {
         ),
       );
     }
+  }
+
+  Future<void> _pickPostImages() async {
+    final images = await _imagePicker.pickMultiImage();
+
+    if (images.isEmpty) return;
+
+    setState(() {
+      _newImages.addAll(images);
+    });
+  }
+
+  void _removeExistingImage(int index) {
+    setState(() {
+      _postImages.removeAt(index);
+    });
+  }
+
+  void _removeNewImage(int index) {
+    setState(() {
+      _newImages.removeAt(index);
+    });
   }
 
   @override
@@ -135,7 +162,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // EDIT / CANCEL
                           IconButton(
                             onPressed: () {
                               if (_isEditing) {
@@ -231,13 +257,153 @@ class _PostDetailPageState extends State<PostDetailPage> {
                             widget.post.content,
                             style: const TextStyle(fontSize: 16),
                           ),
-                    if (widget.post.imageUrls.isNotEmpty)
+                    if (_isEditing)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Post Images',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // EXISTING IMAGES
+                          if (_postImages.isNotEmpty)
+                            SizedBox(
+                              height: 110,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _postImages.length,
+                                itemBuilder: (context, index) {
+                                  final image = _postImages[index];
+
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        margin: const EdgeInsets.only(
+                                          right: 10,
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.network(
+                                            image.imageUrl,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+
+                                      // REMOVE EXISTING IMAGE
+                                      Positioned(
+                                        top: 0,
+                                        right: 10,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _removeExistingImage(index);
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+
+                          const SizedBox(height: 10),
+
+                          // NEW IMAGES
+                          if (_newImages.isNotEmpty)
+                            SizedBox(
+                              height: 110,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _newImages.length,
+                                itemBuilder: (context, index) {
+                                  final image = _newImages[index];
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        margin: const EdgeInsets.only(
+                                          right: 10,
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.network(
+                                            image.path,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+
+                                      // REMOVE NEW IMAGE
+                                      Positioned(
+                                        top: 0,
+                                        right: 10,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _removeNewImage(index);
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+
+                          const SizedBox(height: 10),
+
+                          // ADD IMAGE BUTTON
+                          OutlinedButton.icon(
+                            onPressed: _pickPostImages,
+                            icon: const Icon(Icons.add_photo_alternate),
+                            label: const Text('Add Images'),
+                          ),
+                        ],
+                      )
+                    else if (widget.post.imageUrls.isNotEmpty)
                       SizedBox(
                         height: 300,
                         child: PageView.builder(
                           itemCount: widget.post.imageUrls.length,
                           itemBuilder: (context, index) {
                             final image = widget.post.imageUrls[index];
+
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 4,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/services/profile_services.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  final ProfileServices _profileServices = ProfileServices();
+  final ProfileService _profileServices = ProfileService();
 
   Map<String, dynamic>? _profile;
   bool _isLoading = false;

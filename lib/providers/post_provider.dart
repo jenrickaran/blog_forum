@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
+import 'package:flutter_app/models/post_image.dart';
 import 'package:flutter_app/services/post_service.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -88,6 +89,8 @@ class PostProvider extends ChangeNotifier {
     required int postId,
     required String title,
     required String content,
+    required List<PostImage> remainingImages,
+    required List<XFile> newImages,
   }) async {
     try {
       _isLoading = true;
@@ -98,13 +101,19 @@ class PostProvider extends ChangeNotifier {
         postId: postId,
         title: title,
         content: content,
+        remainingImages: remainingImages,
+        newImages: newImages,
       );
 
       // Update local post list
       final index = _posts.indexWhere((post) => post.id == postId);
 
       if (index != -1) {
-        _posts[index] = _posts[index].copyWith(title: title, content: content);
+        _posts[index] = _posts[index].copyWith(
+          title: title,
+          content: content,
+          imageUrls: remainingImages,
+        );
       }
 
       return true;

@@ -13,6 +13,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +66,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 20,
@@ -94,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                       final success = await authProvider.signUp(
                         _emailController.text.trim(),
                         _passwordController.text,
+                        _nameController.text.trim(),
                       );
 
                       if (success && context.mounted) {

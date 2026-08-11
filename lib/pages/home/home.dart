@@ -52,6 +52,12 @@ class _HomeState extends State<Home> {
               ),
             ),
           ElevatedButton(
+            onPressed: () {
+              context.go('/profile');
+            },
+            child: const Text('Profile'),
+          ),
+          ElevatedButton(
             onPressed: () async {
               final authProvider = context.read<AuthProvider>();
 
