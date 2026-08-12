@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
 import 'package:flutter_app/models/post_image.dart';
@@ -24,7 +22,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   List<XFile> _selectedImages = [];
   late TextEditingController _titleController;
   late TextEditingController _contentController;
-  List<XFile> _newImages = [];
+  final List<XFile> _newImages = [];
 
   bool _isEditing = false;
 

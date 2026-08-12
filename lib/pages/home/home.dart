@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/pages/auth/login_page.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
 import 'package:flutter_app/providers/post_provider.dart';
 import 'package:flutter_app/widgets/create_post_textfield.dart';
@@ -64,7 +65,7 @@ class _HomeState extends State<Home> {
               await authProvider.logout();
 
               if (context.mounted) {
-                context.go('/login');
+                context.go('/home');
               }
             },
             child: const Text('Logout'),

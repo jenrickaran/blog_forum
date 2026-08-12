@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
+import 'package:flutter_app/widgets/orange_elevated_button.dart';
 import 'package:flutter_app/widgets/textfield.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -14,26 +15,43 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
-    return Scaffold(
-      body: Center(
-        child: SizedBox(
-          width: 600,
+    return Dialog(
+      backgroundColor: Color(0xFFf0f4f9),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(20),
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 600),
+        child: Center(
           child: Column(
             spacing: 20,
             children: [
-              Image.asset('assets/images/vector1.png', width: 600, height: 300),
-              const Text(
-                'Log In',
-                style: TextStyle(
-                  color: Color(0xFFFF5F00),
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Google-Sans',
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                child: Image.asset(
+                  'assets/images/vector1.png',
+                  width: double.infinity,
+                  height: 300,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 400),
+                child: const Text(
+                  'SIGN IN TO YOUR ACCOUNT',
+                  style: TextStyle(
+                    color: Color(0xFF152745),
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Google-Sans',
+                  ),
                 ),
               ),
               ConstrainedBox(
@@ -52,60 +70,42 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                 ),
               ),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+              SizedBox(
+                height: 40,
+                width: 400,
+                child: OrangeElevatedButton(
+                  onTap: () async {
+                    final sucess = await authProvider.login(
+                      _emailController.text.trim(),
+                      _passwordController.text,
+                    );
+
+                    if (sucess && context.mounted) {
+                      context.go('/home');
+                    }
+                  },
+                  text: "Sign In",
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 20,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      final sucess = await authProvider.login(
-                        _emailController.text.trim(),
-                        _passwordController.text,
-                      );
-
-                      if (sucess && context.mounted) {
-                        context.go('/home');
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF5F00),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 400),
+                child: Row(
+                  children: [
+                    Text(
+                      "New here?",
+                      style: TextStyle(fontFamily: 'Google-Sans'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.go('/signup');
+                      },
+                      child: const Text(
+                        'Signup',
+                        style: TextStyle(fontFamily: 'Google-Sans'),
                       ),
                     ),
-                    child: const Text('Log In'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final success = await authProvider.signUp(
-                        _emailController.text.trim(),
-                        _passwordController.text,
-                        _nameController.text.trim(),
-                      );
-
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sign Up Successful! Please log in.'),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF8C00),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                    ),
-                    child: const Text('Sign Up'),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

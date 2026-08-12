@@ -20,11 +20,11 @@ class CustomTextFields extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
-          hoverColor: const Color(0xFFFF5F00),
-          floatingLabelStyle: const TextStyle(color: Color(0xFFFF5F00)),
+          hoverColor: const Color.fromARGB(255, 20, 37, 67),
+          floatingLabelStyle: const TextStyle(color: Color(0xFF152745)),
           border: const OutlineInputBorder(),
           focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFFFF5F00)),
+            borderSide: BorderSide(color: Color.fromARGB(255, 2, 12, 29)),
           ),
           labelText: labelText,
         ),
