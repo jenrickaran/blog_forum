@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/widgets/orange_elevated_button.dart';
+import 'package:flutter_app/widgets/blue_elevated_button.dart';
 import 'package:flutter_app/widgets/textfield.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -85,7 +85,7 @@ class _SignupPageState extends State<SignupPage> {
             SizedBox(
               height: 40,
               width: 400,
-              child: OrangeElevatedButton(
+              child: BlueElevatedButton(
                 onTap: () async {
                   final success = await authProvider.signUp(
                     _emailController.text.trim(),

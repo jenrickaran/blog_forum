@@ -14,6 +14,24 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoggedIn => _user != null;
 
+  AuthProvider() {
+    _initializeAuth();
+  }
+
+  void _initializeAuth() {
+    final supabase = Supabase.instance.client;
+
+    // Restore existing session
+    _user = supabase.auth.currentUser;
+
+    // Listen for authentication changes
+    supabase.auth.onAuthStateChange.listen((data) {
+      _user = data.session?.user;
+
+      notifyListeners();
+    });
+  }
+
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;

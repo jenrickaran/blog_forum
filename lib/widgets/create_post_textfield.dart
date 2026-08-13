@@ -10,6 +10,7 @@ class CreatePostTextfield extends StatelessWidget {
 
   void _showLoginDialog(BuildContext context) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.25),
       builder: (context) {
@@ -32,26 +33,44 @@ class CreatePostTextfield extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
-    return TextField(
-      autofocus: true,
-      readOnly: true,
-      decoration: InputDecoration(
-        hintText: "Want to share something?",
-        border: OutlineInputBorder(),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 5,
+            offset: Offset(0, 0),
+          ),
+        ],
       ),
-      onTap: () {
-        if (!authProvider.isLoggedIn) {
-          _showLoginDialog(context);
-          return;
-        }
+      child: TextField(
+        autofocus: true,
+        readOnly: true,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Color(0xFFf2f4f7),
+          hintText: "Want to share something?",
+          hintStyle: TextStyle(fontFamily: 'Google-Sans'),
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          hoverColor: Colors.transparent,
+        ),
+        onTap: () {
+          if (!authProvider.isLoggedIn) {
+            _showLoginDialog(context);
+            return;
+          }
 
-        showDialog(
-          context: context,
-          builder: (context) {
-            return const CreatePostPage();
-          },
-        );
-      },
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const CreatePostPage();
+            },
+          );
+        },
+      ),
     );
   }
 }

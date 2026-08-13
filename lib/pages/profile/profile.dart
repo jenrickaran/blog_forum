@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_app/services/profile_services.dart';
@@ -155,7 +156,19 @@ class _ProfileState extends State<Profile> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                context.go('/home');
+              },
+              child: Text('Back'),
+            ),
+            const Text('Profile'),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

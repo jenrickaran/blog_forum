@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class OrangeElevatedButton extends StatelessWidget {
+class BlueElevatedButton extends StatelessWidget {
   final VoidCallback? onTap;
   final String text;
-  const OrangeElevatedButton({
+  const BlueElevatedButton({
     super.key,
     required this.onTap,
     required this.text,
@@ -14,7 +14,7 @@ class OrangeElevatedButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0xFFFF5F00),
+        backgroundColor: Color(0xFF152745),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
