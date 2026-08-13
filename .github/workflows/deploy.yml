@@ -33,6 +33,7 @@ jobs:
       - name: Build Flutter Web
         run: |
           flutter build web --release \
+            --base-href=/blog_forum/ \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
