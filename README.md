@@ -3,7 +3,7 @@
 A modern Blog Forum application built with Flutter and Supabase. The application allows users to create, view, update, and delete blog posts, interact through comments, and manage their profiles.
 
 This project was developed as part of a technical assessment to demonstrate skills in Flutter development, state management, backend integration, authentication, database operations, and file storage.
-
+ 
 # Features
 # 🔐 Authentication
 - User registration using email and password
