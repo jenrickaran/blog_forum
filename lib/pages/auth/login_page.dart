@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback? onSignup;
+  const LoginPage({super.key, this.onSignup});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,6 +16,51 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  bool isLoading = false;
+
+  Future<void> login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final authProvider = context.read<AuthProvider>();
+
+      final success = await authProvider.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (success && mounted) {
+        // Close AuthDialog
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Logged In",
+              style: TextStyle(fontFamily: 'Google-Sans'),
+            ),
+          ),
+        );
+
+        // Go to home
+        context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomTextFields(
+                      onSubmitted: (_) => login(),
                       controller: _passwordController,
                       labelText: "Password",
                       obscureText: true,
@@ -83,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                         );
 
                         if (sucess && context.mounted) {
-                          context.pop();
+                          Navigator.of(context, rootNavigator: true).pop();
                           context.go('/home');
                         }
                       },
@@ -99,9 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(fontFamily: 'Google-Sans'),
                         ),
                         TextButton(
-                          onPressed: () {
-                            context.go('/signup');
-                          },
+                          onPressed: widget.onSignup,
                           child: const Text(
                             'Signup',
                             style: TextStyle(fontFamily: 'Google-Sans'),

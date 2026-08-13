@@ -8,6 +8,8 @@ class Comment {
   final DateTime createdAt;
   final String? updatedAt;
   final List<CommentImage> commentImages;
+  final String? userName;
+  final String? profilePhoto;
 
   Comment({
     required this.id,
@@ -17,9 +19,13 @@ class Comment {
     required this.createdAt,
     this.updatedAt,
     required this.commentImages,
+    this.userName,
+    this.profilePhoto,
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
+    final profile = json['profile'];
+
     return Comment(
       id: json['id'],
       postId: json['post_id'],
@@ -35,6 +41,8 @@ class Comment {
                 )
                 .toList()
           : [],
+      userName: profile?['name'],
+      profilePhoto: profile?['profile_photo'],
     );
   }
 }

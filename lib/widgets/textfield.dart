@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomTextFields extends StatelessWidget {
+  final void Function(String)? onSubmitted;
   const CustomTextFields({
     super.key,
     required this.controller,
     required this.labelText,
     required this.obscureText,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -17,6 +19,7 @@ class CustomTextFields extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
       child: TextField(
+        onSubmitted: onSubmitted,
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(

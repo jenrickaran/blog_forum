@@ -65,6 +65,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
                   if (_selectedImage.isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),

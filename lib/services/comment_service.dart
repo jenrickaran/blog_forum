@@ -11,21 +11,45 @@ class CommentService {
 
   Future<List<Comment>> getComments(int postId) async {
     try {
+      // 1. Get comments
       final response = await supabase
           .from('comments')
           .select('''
-            *,
-            comment_images(*)
-          ''')
+          *,
+          comment_images(*)
+        ''')
           .eq('post_id', postId)
           .order('created_at');
 
+      // 2. Get unique user IDs from comments
+      final userIds = response
+          .map<String>((comment) => comment['user_id'] as String)
+          .toSet()
+          .toList();
+
+      // 3. Get profiles
+      final profiles = userIds.isEmpty
+          ? <Map<String, dynamic>>[]
+          : await supabase
+                .from('profile')
+                .select('id, name, profile_photo')
+                .inFilter('id', userIds);
+
+      // 4. Create profile map
+      final profileMap = {
+        for (final profile in profiles) profile['id']: profile,
+      };
+
+      // 5. Attach profile to each comment
       final comments = response.map<Comment>((json) {
-        return Comment.fromJson(json);
+        final profile = profileMap[json['user_id']];
+
+        return Comment.fromJson({...json, 'profile': profile});
       }).toList();
 
       return comments;
     } catch (e) {
+      debugPrint('Error getting comments: $e');
       rethrow;
     }
   }

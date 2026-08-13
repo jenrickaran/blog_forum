@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/providers/post_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_app/services/profile_services.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -156,111 +158,185 @@ class _ProfileState extends State<Profile> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                context.go('/home');
-              },
-              child: Text('Back'),
+      backgroundColor: Color(0x000fffff),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 20,
+            left: 20,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: IconButton(
+                onPressed: () {
+                  context.read<PostProvider>().fetchPosts();
+                  context.go('/home');
+                },
+                icon: Image.asset(
+                  'assets/images/home_logo.png',
+                  width: 30,
+                  height: 30,
+                ),
+              ),
             ),
-            const Text('Profile'),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // AVATAR
-            GestureDetector(
-              onTap: isSaving ? null : _pickAvatar,
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 55,
-                    backgroundImage: avatarUrl != null
-                        ? NetworkImage(avatarUrl!)
-                        : const NetworkImage(
-                            'https://www.w3schools.com/howto/img_avatar.png',
+          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // AVATAR
+                    GestureDetector(
+                      onTap: isSaving ? null : _pickAvatar,
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            radius: 55,
+                            backgroundImage: avatarUrl != null
+                                ? NetworkImage(avatarUrl!)
+                                : const AssetImage(
+                                    'assets/images/default_avatar.png',
+                                  ),
                           ),
-                  ),
-
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Image.asset(
+                                'assets/images/camera_logo.png',
+                                width: 30,
+                                height: 30,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 20,
+
+                    const SizedBox(height: 30),
+
+                    // NAME
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hoverColor: const Color.fromARGB(255, 20, 37, 67),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF152745),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 2, 12, 29),
+                          ),
+                        ),
+                        labelText: 'Name',
+                        labelStyle: const TextStyle(fontFamily: 'Google-Sans'),
+                        prefixIcon: Image.asset(
+                          'assets/images/user_logo.png',
+                          width: 15,
+                          height: 15,
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 15),
+
+                    // EMAIL
+                    TextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hoverColor: const Color.fromARGB(255, 20, 37, 67),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF152745),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 2, 12, 29),
+                          ),
+                        ),
+                        labelText: 'Email',
+                        labelStyle: TextStyle(fontFamily: 'Google-Sans'),
+                        prefixIcon: Image.asset(
+                          'assets/images/email_logo.png',
+                          width: 15,
+                          height: 15,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    // PASSWORD
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hoverColor: const Color.fromARGB(255, 20, 37, 67),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF152745),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 2, 12, 29),
+                          ),
+                        ),
+                        labelText: 'New Password',
+                        labelStyle: TextStyle(fontFamily: 'Google-Sans'),
+                        prefixIcon: Image.asset(
+                          'assets/images/password_logo.png',
+                          width: 15,
+                          height: 15,
+                        ),
+                        border: OutlineInputBorder(),
+                        hintText: 'Leave blank to keep current password',
+                        hintStyle: TextStyle(fontFamily: 'Google-Sans'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // SAVE BUTTON
+                    SizedBox(
+                      height: 40,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF152745),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                        ),
+                        onPressed: isSaving ? null : _saveProfile,
+                        child: isSaving
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Save Changes',
+                                style: TextStyle(fontFamily: 'Google-Sans'),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            // NAME
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // EMAIL
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // PASSWORD
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(),
-                hintText: 'Leave blank to keep current password',
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // SAVE BUTTON
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isSaving ? null : _saveProfile,
-                child: isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Save Changes'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

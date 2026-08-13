@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_app/models/post.dart';
 import 'package:flutter_app/models/post_image.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,6 +32,7 @@ class PostService {
 
   Future<List<Post>> fetchPosts({required int from, required int to}) async {
     final supabase = Supabase.instance.client;
+
     final response = await supabase
         .from('post')
         .select('''
@@ -49,7 +51,25 @@ class PostService {
         .order('created_at', ascending: false)
         .range(from, to);
 
-    return response.map<Post>((json) => Post.fromJson(json)).toList();
+    final userIds = response
+        .map<String>((post) => post['user_id'] as String)
+        .toSet()
+        .toList();
+
+    final profiles = userIds.isEmpty
+        ? <Map<String, dynamic>>[]
+        : await supabase
+              .from('profile')
+              .select('id, name, profile_photo')
+              .inFilter('id', userIds);
+
+    final profileMap = {for (final profile in profiles) profile['id']: profile};
+
+    return response.map<Post>((json) {
+      final profile = profileMap[json['user_id']];
+
+      return Post.fromJson({...json, 'profile': profile});
+    }).toList();
   }
 
   Future<void> deletePost(int postId) async {
@@ -60,30 +80,61 @@ class PostService {
       throw Exception('Login first to delete the post.');
     }
 
-    // 1. Verify that the post belongs to the logged-in user.
-    final post = await supabase
-        .from('post')
-        .select('user_id')
-        .eq('id', postId)
-        .maybeSingle();
+    try {
+      // 1. Check post and ownership
+      final post = await supabase
+          .from('post')
+          .select('user_id')
+          .eq('id', postId)
+          .maybeSingle();
 
-    if (post == null) {
-      throw Exception('Post not found.');
+      if (post == null) {
+        throw Exception('Post not found.');
+      }
+
+      final postOwnerId = post['user_id'];
+
+      if (postOwnerId != user.id) {
+        throw Exception('You are not authorized to delete this post.');
+      }
+
+      // 2. Delete post images
+      await supabase.from('post_images').delete().eq('post_id', postId);
+
+      // 3. Find comments belonging to the post
+      final comments = await supabase
+          .from('comments')
+          .select('id')
+          .eq('post_id', postId);
+
+      // 4. Delete comment images
+      for (final comment in comments) {
+        final commentId = comment['id'];
+
+        await supabase
+            .from('comment_images')
+            .delete()
+            .eq('comment_id', commentId);
+      }
+
+      // 5. Delete comments
+      await supabase.from('comments').delete().eq('post_id', postId);
+
+      // 6. Delete post
+      final deletedPost = await supabase
+          .from('post')
+          .delete()
+          .eq('id', postId)
+          .eq('user_id', user.id)
+          .select();
+
+      // 7. Verify deletion
+      if (deletedPost.isEmpty) {
+        throw Exception('Post could not be deleted.');
+      }
+    } catch (e) {
+      rethrow;
     }
-
-    if (post['user_id'] != user.id) {
-      throw Exception('You are not authorized to delete this post.');
-    }
-
-    // 2. Delete associated image records.
-    await supabase.from('post_images').delete().eq('post_id', postId);
-
-    // 3. Delete the post.
-    await supabase
-        .from('post')
-        .delete()
-        .eq('id', postId)
-        .eq('user_id', user.id);
   }
 
   Future<void> updatePost({

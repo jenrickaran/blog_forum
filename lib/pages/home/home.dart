@@ -18,11 +18,21 @@ class _HomeState extends State<Home> {
     await context.read<PostProvider>().fetchPosts();
   }
 
+  Future<void> _refreshPosts() async {
+    await context.read<PostProvider>().fetchPosts();
+  }
+
   @override
   void initState() {
     super.initState();
 
     Future.microtask(_loadPosts);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<PostProvider>().fetchPosts();
+      }
+    });
   }
 
   Future<void> _logout() async {
@@ -31,6 +41,9 @@ class _HomeState extends State<Home> {
     await authProvider.logout();
 
     if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Log Out')));
       context.go('/home');
     }
   }
@@ -39,8 +52,6 @@ class _HomeState extends State<Home> {
     return Column(
       children: [
         const SizedBox(height: 30),
-
-        // Logo / App name
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -105,7 +116,6 @@ class _HomeState extends State<Home> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 768;
-
         return Scaffold(
           backgroundColor: Color(0x000fffff),
           // Drawer exists only on mobile

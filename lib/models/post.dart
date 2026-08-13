@@ -7,6 +7,8 @@ class Post {
   final DateTime createdAt;
   final String userId;
   final List<PostImage> imageUrls;
+  final String? userName;
+  final String? profilePhoto;
 
   Post({
     required this.id,
@@ -15,9 +17,12 @@ class Post {
     required this.createdAt,
     required this.userId,
     required this.imageUrls,
+    this.userName,
+    this.profilePhoto,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    final profile = json['profile'];
     return Post(
       id: json['id'],
       title: json['title'],
@@ -27,6 +32,8 @@ class Post {
       imageUrls: (json['post_images'] as List<dynamic>)
           .map((image) => PostImage.fromJson(image))
           .toList(),
+      userName: profile?['name'],
+      profilePhoto: profile?['profile_photo'],
     );
   }
 
@@ -37,6 +44,8 @@ class Post {
     DateTime? createdAt,
     String? userId,
     List<PostImage>? imageUrls,
+    String? userName,
+    String? profilePhoto,
   }) {
     return Post(
       id: id ?? this.id,
@@ -45,6 +54,8 @@ class Post {
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
       imageUrls: imageUrls ?? this.imageUrls,
+      userName: userName ?? this.userName,
+      profilePhoto: profilePhoto ?? this.profilePhoto,
     );
   }
 }

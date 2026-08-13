@@ -17,7 +17,12 @@ class CommentList extends StatelessWidget {
         }
 
         if (provider.comments.isEmpty) {
-          return const Center(child: Text("No comments yet."));
+          return const Center(
+            child: Text(
+              "No comments yet.",
+              style: TextStyle(fontFamily: 'Google-Sans'),
+            ),
+          );
         }
 
         return ListView.builder(
