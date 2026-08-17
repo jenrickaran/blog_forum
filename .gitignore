@@ -120,3 +120,7 @@ app.*.symbols
 
 #credentials
 .env
+
+#for not crashing the production, don't push this
+lib/main.dart
+pubspec.yaml

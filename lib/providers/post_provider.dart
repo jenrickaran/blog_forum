@@ -41,13 +41,15 @@ class PostProvider extends ChangeNotifier {
 
   Future<void> fetchPosts({bool loadMore = false}) async {
     if (_isLoading) return;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
       const pageSize = 10;
 
-      final from = _posts.length;
+      final from = loadMore ? _posts.length : 0;
       final to = from + pageSize - 1;
 
       final newPosts = await _postService.fetchPosts(from: from, to: to);

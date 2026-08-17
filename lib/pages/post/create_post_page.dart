@@ -43,6 +43,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: _titleController,
+                    maxLength: 60,
                     decoration: const InputDecoration(
                       hintText: "Title",
                       hintStyle: TextStyle(fontFamily: 'Google-Sans'),

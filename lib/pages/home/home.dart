@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
 import 'package:flutter_app/providers/post_provider.dart';
+import 'package:flutter_app/widgets/auth_dialog.dart';
 import 'package:flutter_app/widgets/create_post_textfield.dart';
 import 'package:flutter_app/widgets/post_card.dart';
 import 'package:go_router/go_router.dart';
@@ -14,23 +15,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future<void> _loadPosts() async {
-    await context.read<PostProvider>().fetchPosts();
-  }
-
   Future<void> _refreshPosts() async {
-    await context.read<PostProvider>().fetchPosts();
+    final postProvider = context.read<PostProvider>();
+
+    try {
+      await postProvider.fetchPosts();
+    } catch (e) {}
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(_loadPosts);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<PostProvider>().fetchPosts();
+        _refreshPosts();
       }
     });
   }
@@ -49,65 +48,115 @@ class _HomeState extends State<Home> {
   }
 
   Widget _navigation(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
     return Column(
       children: [
-        const SizedBox(height: 30),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              Image.asset(
-                'assets/images/logo.png',
-                width: 40,
-                height: 40,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'BLOG FORUM',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Google-Sans',
+        if (authProvider.isLoggedIn) ...[
+          const SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                const Text(
+                  'BLOG FORUM',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Google-Sans',
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-
-        const SizedBox(height: 30),
-
-        // Profile
-        ListTile(
-          leading: Image.asset(
-            'assets/images/profile_logo.png',
-            width: 24,
-            height: 24,
+          const SizedBox(height: 30),
+          // Profile
+          ListTile(
+            leading: Image.asset(
+              'assets/images/profile_logo.png',
+              width: 24,
+              height: 24,
+            ),
+            title: const Text(
+              'Profile',
+              style: TextStyle(fontFamily: 'Google-Sans'),
+            ),
+            onTap: () {
+              context.go('/profile');
+            },
           ),
-          title: const Text(
-            'Profile',
-            style: TextStyle(fontFamily: 'Google-Sans'),
+          // Logout
+          ListTile(
+            leading: Image.asset(
+              'assets/images/logout_logo.png',
+              width: 24,
+              height: 24,
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(fontFamily: 'Google-Sans'),
+            ),
+            onTap: _logout,
           ),
-          onTap: () {
-            context.go('/profile');
-          },
-        ),
-
-        // Logout
-        ListTile(
-          leading: Image.asset(
-            'assets/images/logout_logo.png',
-            width: 24,
-            height: 24,
+        ] else ...[
+          const SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'BLOG FORUM',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Google-Sans',
+                  ),
+                ),
+              ],
+            ),
           ),
-          title: const Text(
-            'Logout',
-            style: TextStyle(fontFamily: 'Google-Sans'),
+          const SizedBox(height: 30),
+          // Profile
+          ListTile(
+            leading: Image.asset(
+              'assets/images/profile_logo.png',
+              width: 24,
+              height: 24,
+            ),
+            title: const Text(
+              'Login',
+              style: TextStyle(fontFamily: 'Google-Sans'),
+            ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const AuthDialog();
+                },
+              );
+            },
           ),
-          onTap: _logout,
-        ),
+        ],
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
